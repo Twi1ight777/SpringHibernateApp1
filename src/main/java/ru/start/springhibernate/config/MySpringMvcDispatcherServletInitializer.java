@@ -1,4 +1,4 @@
-package ru.start.springframework.config;
+package ru.start.springhibernate.config;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterRegistration;
