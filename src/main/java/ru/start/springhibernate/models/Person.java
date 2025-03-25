@@ -5,6 +5,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+
+import java.util.List;
+
 // Класс Person стал сущностью для Hibernate
 @Entity
 @Table(name = "Person")
@@ -28,6 +31,9 @@ public class Person {
     @NotEmpty(message = "Email should not be empty")
     private String email;
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.PERSIST)
+    private List<Item> items;
+
     public Person() {
 
     }
@@ -35,6 +41,13 @@ public class Person {
     public Person(String name, int age) {
         this.name = name;
         this.age = age;
+    }
+
+    public List<Item> getItems() {
+        return items;
+    }
+    public void setItems(List<Item> items) {
+        this.items = items;
     }
 
     public int getId() {
