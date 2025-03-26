@@ -5,8 +5,11 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 // Класс Person стал сущностью для Hibernate
 @Entity
@@ -31,6 +34,20 @@ public class Person {
     @NotEmpty(message = "Email should not be empty")
     private String email;
 
+    // Можно ввести Spring Validator для вывода ошибок пользователю
+    @Column(name = "date_of_birth")
+    @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "dd/MM/yyyy") // Из строки делает дату dd/MM/yyyy
+    private Date dateOfBirth;
+
+    @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    @Enumerated(EnumType.ORDINAL) // index 0 1 2 3
+    // or STRING to string
+    private Mood mood;
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.PERSIST)
     private List<Item> items;
 
@@ -41,6 +58,27 @@ public class Person {
     public Person(String name, int age) {
         this.name = name;
         this.age = age;
+    }
+
+    public Mood getMood() {
+        return mood;
+    }
+    public void setMood(Mood mood) {
+        this.mood = mood;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     public List<Item> getItems() {
@@ -76,5 +114,17 @@ public class Person {
     }
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return id == person.id && age == person.age && Objects.equals(name, person.name) && Objects.equals(email, person.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, age, email);
     }
 }
