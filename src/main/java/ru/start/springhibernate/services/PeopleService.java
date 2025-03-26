@@ -1,11 +1,16 @@
 package ru.start.springhibernate.services;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.start.springhibernate.models.Book;
+import ru.start.springhibernate.models.Mood;
 import ru.start.springhibernate.models.Person;
 import ru.start.springhibernate.repositories.PeopleRepository;
 
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,20 +36,50 @@ public class PeopleService {
     }
 
     @Transactional
-    public void save(Person person){
+    public void save(Person person) {
         peopleRepository.save(person);
     }
+
     @Transactional
-    public void update(int id, Person updatePerson){
-        updatePerson.setId(id);
-        peopleRepository.save(updatePerson);
+    public void update(int id, Person updatedPerson) {
+        updatedPerson.setId(id);
+        peopleRepository.save(updatedPerson);
     }
+
     @Transactional
-    public void delete(int id){
+    public void delete(int id) {
         peopleRepository.deleteById(id);
     }
 
-    public void test(){
-        System.out.println("Testing here with debug. Inside Hibernate Transaction");
+    public Optional<Person> getPersonByFullName(String fullName) {
+        return peopleRepository.findByFullName(fullName);
     }
+
+    public List<Book> getBooksByPersonId(int id) {
+        Optional<Person> person = peopleRepository.findById(id);
+
+        if (person.isPresent()) {
+            Hibernate.initialize(person.get().getBooks());
+            // Мы внизу итерируемся по книгам, поэтому они точно будут загружены, но на всякий случай
+            // не мешает всегда вызывать Hibernate.initialize()
+            // (на случай, например, если код в дальнейшем поменяется и итерация по книгам удалится)
+
+            // Проверка просроченности книг
+            person.get().getBooks().forEach(book -> {
+                long diffInMillies = Math.abs(book.getTakenAt().getTime() - new Date().getTime());
+                // 864000000 милисекунд = 10 суток
+                if (diffInMillies > 864000000)
+                    book.setExpired(true); // книга просрочена
+            });
+
+            return person.get().getBooks();
+        }
+        else {
+            return Collections.emptyList();
+        }
+    }
+
+//    public void test(){
+//        System.out.println("Testing here with debug. Inside Hibernate Transaction");
+//    }
 }

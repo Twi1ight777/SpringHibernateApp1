@@ -6,30 +6,34 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.start.springhibernate.dao.PersonDAO;
 import ru.start.springhibernate.models.Person;
 import ru.start.springhibernate.services.ItemService;
 import ru.start.springhibernate.services.PeopleService;
+import ru.start.springhibernate.util.PersonValidator;
 
 @Controller
 @RequestMapping("/people")
 public class PeopleController {
 
     private final PeopleService peopleService;
-    private final ItemService itemService;
+//    private final ItemService itemService;
+//    private final PersonDAO personDAO;
+    private final PersonValidator personValidator;
+
     @Autowired
-    public PeopleController(PeopleService peopleService, ItemService itemService) {
+    public PeopleController(PeopleService peopleService, PersonValidator personValidator) {
         this.peopleService = peopleService;
-        this.itemService = itemService;
+        this.personValidator = personValidator;
     }
 
     @GetMapping()
     public String index(Model model) {
         model.addAttribute("people", peopleService.findAll());
-
-        itemService.findByItemName("Airpods");
-        itemService.findByOwner(peopleService.findAll().getFirst());
-
-        peopleService.test();
+//        personDAO.testNPlusOne();
+//        itemService.findByItemName("Airpods");
+//        itemService.findByOwner(peopleService.findAll().getFirst());
+//        peopleService.test();
 
         return "people/index";
     }
@@ -37,6 +41,7 @@ public class PeopleController {
     @GetMapping("/{id}")
     public String show(@PathVariable("id") int id, Model model) {
         model.addAttribute("person", peopleService.findOne(id));
+        model.addAttribute("books", peopleService.getBooksByPersonId(id));
         return "people/show";
     }
 
@@ -48,6 +53,7 @@ public class PeopleController {
     @PostMapping()
     public String create(@ModelAttribute("person") @Valid Person person,
                          BindingResult bindingResult) {
+        personValidator.validate(person, bindingResult);
         if (bindingResult.hasErrors())
             return "people/new";
 
