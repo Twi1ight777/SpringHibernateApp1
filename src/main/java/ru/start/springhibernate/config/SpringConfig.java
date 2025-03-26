@@ -1,6 +1,7 @@
 package ru.start.springhibernate.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -27,14 +28,17 @@ import java.util.Properties;
 @ComponentScan("ru.start.springhibernate")
 @PropertySource("classpath:hibernate.properties")
 @EnableTransactionManagement
-@EnableWebMvc
 @EnableJpaRepositories("ru.start.springhibernate.repositories")
+@EnableWebMvc
 public class SpringConfig implements WebMvcConfigurer {
 
-    private final Environment env; // Для доступа к properties
+    private final ApplicationContext applicationContext;
+
+    private final Environment env;
 
     @Autowired
-    public SpringConfig(Environment env) {
+    public SpringConfig(ApplicationContext applicationContext, Environment env) {
+        this.applicationContext = applicationContext;
         this.env = env;
     }
 
