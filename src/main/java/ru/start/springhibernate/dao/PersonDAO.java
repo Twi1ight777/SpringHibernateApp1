@@ -41,7 +41,6 @@ public class PersonDAO {
         for (Person person : people) {
             System.out.println("Person " + person.getName() + " has: " + person.getItems());
         }
-
-        }
     }
 }
+
