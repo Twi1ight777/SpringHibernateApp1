@@ -30,7 +30,7 @@ public class PeopleService {
     }
     // Не помечаем @Transactional тк. readOnly = true
     public Person findOne(int id){
-        // Либо найдем, либо не найдем
+        // Либо найдем, либо не найдем Optional
         Optional<Person> foundPerson = peopleRepository.findById(id);
         return foundPerson.orElse(null);
     }
@@ -60,14 +60,14 @@ public class PeopleService {
 
         if (person.isPresent()) {
             Hibernate.initialize(person.get().getBooks());
-            // Мы внизу итерируемся по книгам, поэтому они точно будут загружены, но на всякий случай
-            // не мешает всегда вызывать Hibernate.initialize()
+            // На всякий случай всегда надо использовать Hibernate.initialize() при транзакции связанных сущностей
+            // не мешает всегда вызывать Hibernate.initialize() -> потому что ленивая инициализация
             // (на случай, например, если код в дальнейшем поменяется и итерация по книгам удалится)
 
             // Проверка просроченности книг
             person.get().getBooks().forEach(book -> {
-                long diffInMillies = Math.abs(book.getTakenAt().getTime() - new Date().getTime());
-                // 864000000 милисекунд = 10 суток
+                long diffInMillies = Math.abs(book.getTakenAt().getTime() - new Date().getTime()); // Берём по модулю
+                // getTime() в милисекундах. 864000000 милисекунд = 10 суток
                 if (diffInMillies > 864000000)
                     book.setExpired(true); // книга просрочена
             });

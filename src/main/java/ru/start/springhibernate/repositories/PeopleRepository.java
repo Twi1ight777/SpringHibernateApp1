@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface PeopleRepository extends JpaRepository<Person,Integer> {
 
-    Optional<Person> findByFullName(String fullName);
+    Optional<Person> findByFullName(String fullName); // Нужен для Валидатора
 
     // Создаем сигнатуры методов
 //    List<Person> findByName(String name);

@@ -51,15 +51,16 @@ public class BooksService {
         booksRepository.save(book);
     }
 
+    // Объект
     @Transactional
     public void update(int id, Book updatedBook) {
-        Book bookToBeUpdated = booksRepository.findById(id).get();
+        Book bookToBeUpdated = booksRepository.findById(id).get(); // Объект никак не связан с Hibernate (передает Book updatedBook)
 
         // добавляем по сути новую книгу (которая не находится в Persistence context), поэтому нужен save()
         updatedBook.setId(id);
-        updatedBook.setOwner(bookToBeUpdated.getOwner()); // чтобы не терялась связь при обновлении
+        updatedBook.setOwner(bookToBeUpdated.getOwner()); // чтобы не терялась связь книги-владельца при обновлении
 
-        booksRepository.save(updatedBook);
+        booksRepository.save(updatedBook); // Обновляет строчку в таблице БД
     }
 
     @Transactional
@@ -67,16 +68,16 @@ public class BooksService {
         booksRepository.deleteById(id);
     }
 
-    // Returns null if book has no owner
+    // Возвращает null если book has no owner
     public Person getBookOwner(int id) {
         // Здесь Hibernate.initialize() не нужен, так как владелец (сторона One) загружается не лениво
         return booksRepository.findById(id).map(Book::getOwner).orElse(null);
     }
 
-    // Освбождает книгу (этот метод вызывается, когда человек возвращает книгу в библиотеку)
+    // Освобождаем книгу (этот метод вызывается, когда человек возвращает книгу в библиотеку)
     @Transactional
     public void release(int id) {
-        booksRepository.findById(id).ifPresent(
+        booksRepository.findById(id).ifPresent( // Книга находится в Persistence context (Мы не передаем книгу в метод)
                 book -> {
                     book.setOwner(null);
                     book.setTakenAt(null);
@@ -88,8 +89,8 @@ public class BooksService {
     public void assign(int id, Person selectedPerson) {
         booksRepository.findById(id).ifPresent(
                 book -> {
-                    book.setOwner(selectedPerson);
-                    book.setTakenAt(new Date()); // текущее время
+                    book.setOwner(selectedPerson); // назначает человека, взявшего книгу
+                    book.setTakenAt(new Date()); // назначает текущее время
                 }
         );
     }

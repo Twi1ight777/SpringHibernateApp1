@@ -34,9 +34,10 @@ public class Book {
     private Person owner;
 
     @Column(name = "taken_at")
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.TIMESTAMP) // Сохраняет текущее время, когда была взята книга
     private Date takenAt;
 
+    // Просрочена книга или нет в зависимости от TIMESTAMP
     @Transient
     private boolean expired; // Hibernate не будет замечать этого поля, что нам и нужно. По-умолчанию false.
 
